@@ -13,7 +13,7 @@ def h160(b):
 def reverseBytes(b):
     a = bytearray()
     for i in range(len(b)):
-        a.extend(b[len(b)-i-1].to_bytes())
+        a.extend(b[len(b)-i-1].to_bytes(length=1))
     return a
 
 def open_file_as_json(filename):
