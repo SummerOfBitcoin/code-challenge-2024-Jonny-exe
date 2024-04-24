@@ -14,7 +14,7 @@ TARGET_HASH_FORMATED = format_target(TARGET_HASH)
 PREVIOUS_BLOCK = bytes.fromhex("000000000000000000015b32060fb2b834a4f799616500ab2af7277e93d70736")
 # BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="big")
 BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
-VERSION = (2).to_bytes(length=4, byteorder="little")
+VERSION = (32).to_bytes(length=4, byteorder="little")
 
 def mine(target, merkletree):
     # asdfasd
