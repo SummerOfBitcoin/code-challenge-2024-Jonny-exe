@@ -243,7 +243,7 @@ def get_message(tran):
                         arr.extend(int_to_compact(len(tran.pubkey[vin])))
                         arr.extend(tran.pubkey[vin])
                     else:
-                        arr.extend(int_to_compact(tran.in_scripts[i]))
+                        arr.extend(int_to_compact(len(tran.in_scripts[i])))
                         arr.extend(tran.in_scripts[i])
                 else:
                     arr.extend(int(0).to_bytes())
@@ -267,7 +267,6 @@ def get_message(tran):
 
                 # print("  sequence: ", binascii.hexlify(tran.sequences[i]))
             # END INPUT
-
 
 
             preimage.extend(tran.outputs)
@@ -300,30 +299,32 @@ def get_message(tran):
         message = s256(preimage)
         # print("message: ", binascii.hexlify(message))
 
-        if tran.type[vin] == "p2sh":
-            if "witness" in tran.data["vin"][vin]:
-                redeamscript = bytes.fromhex(tran.data["vin"][vin]["witness"][-1])
-                a = h160(s256(redeamscript))
-                scripthash = h160(s256(b'\x00\x14' + a))
-                validscripthash = tran.in_scripts[vin][2:-1]
-                # print("scripthash: ", binascii.hexlify(scripthash))
-                # print("validscripthash: ", binascii.hexlify(validscripthash))
-                if scripthash == validscripthash:
-                    pass
-                else:
-                    valid = False
-                    continue
+        # if tran.type[vin] == "p2sh":
+        #     if "witness" in tran.data["vin"][vin]:
+        #         redeamscript = bytes.fromhex(tran.data["vin"][vin]["witness"][-1])
+        #         a = h160(s256(redeamscript))
+        #         scripthash = h160(s256(b'\x00\x14' + a))
+        #         validscripthash = tran.in_scripts[vin][2:-1]
+        #         # print("scripthash: ", binascii.hexlify(scripthash))
+        #         # print("validscripthash: ", binascii.hexlify(validscripthash))
+        #         if scripthash == validscripthash:
+        #             pass
+        #         else:
+        #             valid = False
+        #             continue
 
         # print("message: ", binascii.hexlify(message))
 
         # print("sig: ", binascii.hexlify(tran.sig[vin]))
         # print("pubkey: ", binascii.hexlify(tran.pubkey[vin]))
-        a = s256(tran.pubkey[vin])
-        pubkeyh = h160(a)
+        # a = s256(tran.pubkey[vin])
+        # pubkeyh = h160(a)
         # print("pubkeyhash: ", binascii.hexlify(pubkeyh))
         # print("==================  ===================")
 
         valid &= Transaction.verify_signature(tran.pubkey[vin], tran.sig[vin], message) 
+        if not valid:
+            return False
         # print(valid)
 
 
@@ -353,26 +354,29 @@ def test():
     validcount = 0
     invalidcount = 0
     res = []
+    print("HELLO")
     for subdir, dirs, files in os.walk(rootdir):
         for file in files:
             ## print os.path.join(subdir, file)
             filepath = subdir + os.sep + file
+
             try:
                 data = open_file_as_json(filepath)
                 tran = Transaction(data)
                 valid = get_message(tran)
             except:
                 valid = False
+            valdi = False
+
             if valid:
+                
                 res.append(file[:-5])      
                 validcount += 1
                 # print(str(validcount) + "\n", flush=True)
             else:
                 invalidcount += 1
-            
-            print(validcount + invalidcount)
-            if validcount + invalidcount >= 100:
-                break
+            if (validcount + invalidcount) % 100 == 0:
+                print((validcount + invalidcount))
     
     f = open("files.txt", "w")
     for i in res:

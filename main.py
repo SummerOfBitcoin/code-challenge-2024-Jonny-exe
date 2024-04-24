@@ -2,7 +2,7 @@ from hashlib import sha256
 import datetime
 from datetime import datetime
 import json
-from helpers import s256, h160, reverseBytes, open_file_as_json, int_to_compact
+from helpers import s256, h160, reverseBytes, open_file_as_json, int_to_compact, format_target
 
 from write_raw import test, get_raw_transaction, Transaction 
 import math
@@ -10,6 +10,10 @@ import binascii
 import time
 
 TARGET_HASH = "0000ffff00000000000000000000000000000000000000000000000000000000"
+TARGET_HASH_FORMATED = format_target(TARGET_HASH) 
+PREVIOUS_BLOCK = bytes.fromhex("000000000000000000015b32060fb2b834a4f799616500ab2af7277e93d70736")
+BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
+VERSION = (32).to_bytes(length=4, byteorder="little")
 
 def mine(target, merkletree):
     # asdfasd
@@ -45,26 +49,16 @@ def is_hash_smaller(target, hash):
     return False
 
 
-def format_target(target):
-    new_target = [0] * 32
-    for i in range(32):
-        new_target[i] = int(target[i*2:i*2+2], 16)
-    return new_target
-
-
 def validate_transaction(filename):
     file = open(filename)
     data = json.load(file)
 
 def create_block(nonce, merkletree):
     FILENAME = "output.txt"
-    PREVIOUS_BLOCK = bytes.fromhex("000000000000000000015b32060fb2b834a4f799616500ab2af7277e93d70736")
-    version = (32).to_bytes(length=4, byteorder="little")
 
     timestamp = int(time.time()).to_bytes(length=4, byteorder="little")
-    bits = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
 
-    block_header = version + PREVIOUS_BLOCK + merkletree + timestamp  + bits + bytes(nonce)
+    block_header = VERSION + PREVIOUS_BLOCK + merkletree + timestamp  + BLOCK_BITS + bytes(nonce)
     return block_header
 
 def merkle_tree(transactions):
@@ -109,13 +103,15 @@ if __name__ == "__main__":
     trans = open("files.txt", "r").read().split("\n")[:-1]
     trans = list(map(bytes.fromhex, trans))
     trans = list(map(reverseBytes, trans))
+    print("MAP: ", datetime.now())
     merkletree = binascii.hexlify(merkle_tree(trans))
+    print("MERKLE: ", datetime.now())
 
 
     print("tree: ", merkle_tree)
-    target = format_target(TARGET_HASH) 
 
-    block_hash, block_header = mine(target, merkletree)
+    block_hash, block_header = mine(TARGET_HASH_FORMATED, merkletree)
+    print("MINE: ", datetime.now())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)

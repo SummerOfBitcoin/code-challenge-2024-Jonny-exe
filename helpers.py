@@ -19,12 +19,15 @@ def reverseBytes(b):
 def open_file_as_json(filename):
     f = open(filename, "r")
     txt = f.read()
+    f.close()
     return json.loads(txt)
 
 def int_to_compact(i):
     res = None
     l= 1
     while 1:
+        if l > 4:
+            break
         try:
             res = i.to_bytes(byteorder="little", length=l)
             if l == 2:
@@ -39,3 +42,9 @@ def int_to_compact(i):
         l += 1
     return res
             
+
+def format_target(target):
+    new_target = [0] * 32
+    for i in range(32):
+        new_target[i] = int(target[i*2:i*2+2], 16)
+    return new_target
