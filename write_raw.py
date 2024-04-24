@@ -136,7 +136,7 @@ def get_raw_transaction(tran):
                 preimage.extend(bytes.fromhex(tran.data["vin"][i]["witness"][j]))
 
     preimage.extend(tran.locktime)
-    print(binascii.hexlify(preimage))
+    # print(binascii.hexlify(preimage))
     return preimage
 
 
@@ -354,7 +354,6 @@ def test():
     validcount = 0
     invalidcount = 0
     res = []
-    print("HELLO")
     for subdir, dirs, files in os.walk(rootdir):
         for file in files:
             ## print os.path.join(subdir, file)
@@ -375,15 +374,16 @@ def test():
                 # print(str(validcount) + "\n", flush=True)
             else:
                 invalidcount += 1
+            if validcount + invalidcount > 100:
+                break
             if (validcount + invalidcount) % 100 == 0:
-                print((validcount + invalidcount))
+                # print((validcount + invalidcount))
+                pass
     
     f = open("files.txt", "w")
     for i in res:
         f.write(i+"\n")
     f.close()
-    print("VALIDDDDD", validcount)
-    print("INVALIDDDDD", invalidcount)
     return res
 
 

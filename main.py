@@ -31,11 +31,9 @@ def mine(target, merkletree):
 
         
         if nonce % 100000 == 0 and not found:
-            print("reset")
             date = str.encode(str(datetime.now().timestamp()))
             nonce = 0
         
-    print(hash)
     return hash, block_header
     # return str.encode(hex(nonce)) + date 
 
@@ -103,15 +101,11 @@ if __name__ == "__main__":
     trans = open("files.txt", "r").read().split("\n")[:-1]
     trans = list(map(bytes.fromhex, trans))
     trans = list(map(reverseBytes, trans))
-    print("MAP: ", datetime.now())
     merkletree = binascii.hexlify(merkle_tree(trans))
-    print("MERKLE: ", datetime.now())
 
 
-    print("tree: ", merkle_tree)
 
     block_hash, block_header = mine(TARGET_HASH_FORMATED, merkletree)
-    print("MINE: ", datetime.now())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
