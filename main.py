@@ -116,8 +116,9 @@ if __name__ == "__main__":
 
     coinbase_transaction_bytes = get_raw_transaction(coinbase_transaction)
     f = open("output.txt", "wb")
+    print(len(block_header))
     f.write(block_header)
-    # f.write(b'\n')
+    f.write(b'\n')
     # f.write(int_to_compact(len(trans)+1))
     # f.write(b'\n')
     f.write(coinbase_transaction_bytes)
