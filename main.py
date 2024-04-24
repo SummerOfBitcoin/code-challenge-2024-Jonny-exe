@@ -12,8 +12,8 @@ import time
 TARGET_HASH = "0000ffff00000000000000000000000000000000000000000000000000000000"
 TARGET_HASH_FORMATED = format_target(TARGET_HASH) 
 PREVIOUS_BLOCK = bytes.fromhex("000000000000000000015b32060fb2b834a4f799616500ab2af7277e93d70736")
-BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="big")
-# BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
+# BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="big")
+BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
 VERSION = (2).to_bytes(length=4, byteorder="little")
 
 def mine(target, merkletree):
@@ -27,7 +27,7 @@ def mine(target, merkletree):
         nonce += 1
         # hash = sha256(str.encode(hex(nonce)) + date).digest()
         block_header = create_block(nonce, merkletree)
-        hash = s256(s256(block_header))
+        hash = reverseBytes(s256(s256(block_header)))
         found = is_hash_smaller(target, hash)
 
         
