@@ -33,6 +33,7 @@ def mine(target, merkletree):
         if nonce % 100000 == 0 and not found:
             date = str.encode(str(datetime.now().timestamp()))
             nonce = 0
+    # print(binascii.hexlify(block_header))
         
     return hash, block_header
     # return str.encode(hex(nonce)) + date 
@@ -56,7 +57,8 @@ def create_block(nonce, merkletree):
 
     timestamp = int(time.time()).to_bytes(length=4, byteorder="little")
 
-    block_header = VERSION + PREVIOUS_BLOCK + merkletree + timestamp  + BLOCK_BITS + bytes(nonce)
+
+    block_header = VERSION + PREVIOUS_BLOCK + merkletree + timestamp  + BLOCK_BITS + nonce.to_bytes(length=4, byteorder="little")
     return block_header
 
 def merkle_tree(transactions):

@@ -377,6 +377,7 @@ def test():
             # if validcount + invalidcount > 100:
             #     break
             if validcount > 2:
+                # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:
                 # print((validcount + invalidcount))
