@@ -374,7 +374,9 @@ def test():
                 # print(str(validcount) + "\n", flush=True)
             else:
                 invalidcount += 1
-            if validcount + invalidcount > 100:
+            # if validcount + invalidcount > 100:
+            #     break
+            if validcount > 2:
                 break
             if (validcount + invalidcount) % 100 == 0:
                 # print((validcount + invalidcount))
