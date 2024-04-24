@@ -34,7 +34,9 @@ def mine(target, merkletree):
             date = str.encode(str(datetime.now().timestamp()))
             nonce = 0
     # print(binascii.hexlify(block_header))
-        
+
+    timestamp = time.time()
+    print(int(timestamp).to)
     return hash, block_header
     # return str.encode(hex(nonce)) + date 
 
@@ -121,11 +123,10 @@ if __name__ == "__main__":
     f.write(int_to_compact(len(trans)+1))
     f.write(b'\n')
     f.write(coinbase_transaction_bytes)
-    f.write(b'\n')
     # trans.insert(0, coinbase_transaction_id)
     for t in trans:
-        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))
         f.write(b'\n')
+        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))
     f.close()
 
 
