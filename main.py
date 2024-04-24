@@ -115,17 +115,20 @@ if __name__ == "__main__":
     coinbase_transaction = Transaction(coinbase_transaction_data)
 
     coinbase_transaction_bytes = get_raw_transaction(coinbase_transaction)
-    f = open("output.txt", "wb")
-    print(len(block_header))
-    f.write(block_header)
-    f.write(b'\n')
-    # f.write(int_to_compact(len(trans)+1))
+    f = open("output.txt", "w")
+    print(str(block_header.hex()))
+    f.write(str(block_header.hex()))
+
     # f.write(b'\n')
-    f.write(coinbase_transaction_bytes)
+    f.write('\n')
+        # f.write(int_to_compact(len(trans)+1))
+        # f.write(b'\n')
+    f.write(str(coinbase_transaction_bytes.hex()))
     # trans.insert(0, coinbase_transaction_id)
     for t in trans:
-        f.write(b'\n')
-        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))
+        f.write('\n')
+        # f.write(b'\n')
+        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
     f.close()
 
 
