@@ -35,8 +35,6 @@ def mine(target, merkletree):
             nonce = 0
     # print(binascii.hexlify(block_header))
 
-    timestamp = time.time()
-    print(int(timestamp).to)
     return hash, block_header
     # return str.encode(hex(nonce)) + date 
 

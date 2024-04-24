@@ -109,10 +109,15 @@ def get_raw_transaction(tran):
     #     preimage.extend(len(tran.out_scriptpubkeys[0]).to_bytes())
     #     preimage.extend(tran.out_scriptpubkeys[0])
     # else
-    if "marker" in data:
-        preimage.extend(tran.data["marker"].to_bytes())
-    if "flag" in data:
-        preimage.extend(tran.data["flag"].to_bytes())
+    segwit = False
+    if not tran.coinbase :
+        for i in range(tran.inputs_n):
+            segwit |= tran.type[i] ==  "v0_p2wpkh"
+    if segwit:
+        # preimage.extend(tran.data["marker"].to_bytes())
+        # preimage.extend(tran.data["flag"].to_bytes())
+        preimage.extend(b"\x00")
+        preimage.extend(b"\x01")
     preimage.extend(tran.inputs)
 
     for i in range(tran.inputs_n):
