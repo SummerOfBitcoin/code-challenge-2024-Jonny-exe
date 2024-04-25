@@ -84,7 +84,8 @@ def calculate_block_reward(trans):
     for i in trans:
         ins, outs = 0, 0
         
-        filename = "mempool/" + reverseBytes(i).hex() + ".json"
+        # filename = "mempool/" + reverseBytes(i).hex() + ".json"
+        filename = "mempool/" + i.hex() + ".json"
         for j in open_file_as_json(filename)["vin"]:
             ins += j["prevout"]["value"]
 
@@ -139,9 +140,10 @@ if __name__ == "__main__":
     for t in trans:
         f.write('\n')
         # f.write(b'\n')
-        print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))).hex())
-        print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
-        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
+        print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))))).hex())
+        # print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))).hex())
+        print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
+        # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
         idx += 1
     f.close()
 
