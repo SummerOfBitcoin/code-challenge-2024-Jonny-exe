@@ -154,7 +154,7 @@ if __name__ == "__main__":
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
         print(idx, t.hex())
-        f.write(t.hex())
+        f.write(reverseBytes(t).hex())
         idx += 1
     f.close()
 
