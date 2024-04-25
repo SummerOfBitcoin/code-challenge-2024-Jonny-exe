@@ -103,12 +103,8 @@ if __name__ == "__main__":
 
     trans = open("files.txt", "r").read().split("\n")[:-1]
     trans = list(map(bytes.fromhex, trans))
-    trans = list(map(reverseBytes, trans))
-    merkletree = merkle_tree(trans)
+    # trans = list(map(reverseBytes, trans))
 
-
-    block_hash, block_header = mine(TARGET_HASH_FORMATED, merkletree)
-    print(block_hash.hex())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
@@ -117,6 +113,18 @@ if __name__ == "__main__":
     coinbase_transaction = Transaction(coinbase_transaction_data)
 
     coinbase_transaction_bytes = get_raw_transaction(coinbase_transaction)
+    print("coin: ", reverseBytes(s256(s256(coinbase_transaction_bytes))).hex())
+    print("coin: ", s256(s256(coinbase_transaction_bytes)).hex())
+    trans.insert(0, reverseBytes(s256(s256(coinbase_transaction_bytes))))
+
+    merkletree = merkle_tree(trans)
+
+    print("merkle: ", merkletree.hex())
+    trans.pop(0)
+
+    block_hash, block_header = mine(TARGET_HASH_FORMATED, merkletree)
+    print(block_hash.hex())
+
     f = open("output.txt", "w")
     print(str(block_header.hex()))
     f.write(str(block_header.hex()))
@@ -127,10 +135,14 @@ if __name__ == "__main__":
         # f.write(b'\n')
     f.write(str(coinbase_transaction_bytes.hex()))
     # trans.insert(0, coinbase_transaction_id)
+    idx = 0
     for t in trans:
         f.write('\n')
         # f.write(b'\n')
+        print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))).hex())
+        print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
         f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
+        idx += 1
     f.close()
 
 
