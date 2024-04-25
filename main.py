@@ -144,14 +144,17 @@ if __name__ == "__main__":
     f.write(str(coinbase_transaction_bytes.hex()))
     # trans.insert(0, coinbase_transaction_id)
     idx = 0
-    for t in trans:
+    # for t in trans:
+    for t in hashes:
         f.write('\n')
         # f.write(b'\n')
-        print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))))).hex())
+        # print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))))).hex())
         # print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))).hex())
-        print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
+        # print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
-        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
+        # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
+        print(idx, t.hex())
+        f.write(t.hex())
         idx += 1
     f.close()
 
