@@ -121,6 +121,10 @@ if __name__ == "__main__":
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
     hashes.insert(0, s256(s256(coinbase_transaction_bytes)))
 
+    print("-----")
+    for i in hashes:
+        print(reverseBytes(i).hex())
+
     merkletree = merkle_tree(hashes)
 
     print("merkle: ", merkletree.hex())
@@ -147,6 +151,7 @@ if __name__ == "__main__":
         # print(idx, s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))))).hex())
         print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
+        f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
         idx += 1
     f.close()
 
