@@ -113,6 +113,7 @@ def get_raw_transaction(tran):
     if not tran.coinbase :
         for i in range(tran.inputs_n):
             segwit |= tran.type[i] ==  "v0_p2wpkh"
+    segwit = False
     if segwit:
         # preimage.extend(tran.data["marker"].to_bytes())
         # preimage.extend(tran.data["flag"].to_bytes())
@@ -121,6 +122,7 @@ def get_raw_transaction(tran):
     preimage.extend(tran.inputs)
 
     for i in range(tran.inputs_n):
+        # preimage.extend(reverseBytes(tran.hashes[i]))
         preimage.extend(tran.hashes[i])
         preimage.extend(tran.out_idx[i])
         preimage.extend(int_to_compact(len(bytes.fromhex(tran.scriptsigs[i]))))
@@ -133,12 +135,13 @@ def get_raw_transaction(tran):
         preimage.extend(int_to_compact(len(tran.out_scriptpubkeys[i])))
         preimage.extend(tran.out_scriptpubkeys[i])
     
-    for i in range(len(tran.data["vin"])):
-        if "witness" in tran.data["vin"][i]:
-            preimage.extend(int_to_compact(len(tran.data["vin"][i]["witness"])))
-            for j in range(len(tran.data["vin"][i]["witness"])):
-                preimage.extend(int_to_compact(len(bytes.fromhex(tran.data["vin"][i]["witness"][j]))))
-                preimage.extend(bytes.fromhex(tran.data["vin"][i]["witness"][j]))
+    if segwit:
+        for i in range(len(tran.data["vin"])):
+            if "witness" in tran.data["vin"][i]:
+                preimage.extend(int_to_compact(len(tran.data["vin"][i]["witness"])))
+                for j in range(len(tran.data["vin"][i]["witness"])):
+                    preimage.extend(int_to_compact(len(bytes.fromhex(tran.data["vin"][i]["witness"][j]))))
+                    preimage.extend(bytes.fromhex(tran.data["vin"][i]["witness"][j]))
 
     preimage.extend(tran.locktime)
     # print(binascii.hexlify(preimage))
