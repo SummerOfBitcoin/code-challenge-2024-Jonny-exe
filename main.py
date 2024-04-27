@@ -120,7 +120,7 @@ if __name__ == "__main__":
     reward = calculate_block_reward(trans)
     coinbase_transaction_data["vout"][0]["value"] = reward
     print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
-    coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24" + witness_root_hash.hex()
+    coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24aa21a9ed" + witness_root_hash.hex()
     print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
 
     coinbase_transaction = Transaction(coinbase_transaction_data)
