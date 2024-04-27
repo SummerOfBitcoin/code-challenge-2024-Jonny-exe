@@ -1,14 +1,16 @@
 import hashlib
 from hashlib import sha256
 import json
+from ripemd160 import ripemd160
 
 def s256(b):
     return sha256(b).digest()
 
 def h160(b):
-    scripthash = hashlib.new('ripemd160')
-    scripthash.update(b)
-    return scripthash.digest()
+    # scripthash = hashlib.new('ripemd160')
+    # scripthash.update(b)
+    # return scripthash.digest()
+    return ripemd160(b)
 
 def reverseBytes(b):
     a = bytearray()
