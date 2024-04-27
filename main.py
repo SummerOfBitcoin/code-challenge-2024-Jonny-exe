@@ -110,11 +110,10 @@ if __name__ == "__main__":
 
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True))) for i in trans]
     types = [Transaction(open_file_as_json("mempool/"+i.hex()+".json")).type for i in trans]
-    for i in range(len(hashes)):
-        print(reverseBytes(hashes[i]).hex())
-        print(reverseBytes(hashes1[i]).hex())
     hashes.insert(0, bytes(32))
-    for i in types:
+    print("TYPES: ", len(types))
+    print("HASHES: ", len(hashes))
+    for i in types[0:30]:
         print("types: ", i)
 
 
@@ -126,9 +125,7 @@ if __name__ == "__main__":
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
     coinbase_transaction_data["vout"][0]["value"] = reward
-    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]),coinbase_transaction_data["vout"][1]["scriptpubkey"] )
     coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24aa21a9ed" + witness_commitment.hex()
-    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]), coinbase_transaction_data["vout"][1]["scriptpubkey"])
 
     coinbase_transaction = Transaction(coinbase_transaction_data)
 
@@ -141,9 +138,6 @@ if __name__ == "__main__":
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
     hashes.insert(0, s256(s256(coinbase_transaction_bytes)))
 
-    print("-----")
-    for i in hashes:
-        print(reverseBytes(i).hex())
 
     merkletree = merkle_tree(hashes)
 
@@ -173,7 +167,7 @@ if __name__ == "__main__":
         # print(idx, get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+reverseBytes(t).hex()+".json"))).hex())
         # f.write(get_raw_transaction(Transaction(open_file_as_json("mempool/"+t.hex()+".json"))).hex())
-        print(idx, t.hex())
+        # print(idx, t.hex())
         f.write(reverseBytes(t).hex())
         idx += 1
     f.close()

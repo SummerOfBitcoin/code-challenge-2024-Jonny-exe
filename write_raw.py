@@ -114,7 +114,6 @@ def get_raw_transaction(tran, include_witness=False):
         for i in range(tran.inputs_n):
             segwit |= tran.type[i] ==  "v0_p2wpkh"
 
-    print(tran.coinbase or (segwit and include_witness), segwit, include_witness)
     if tran.coinbase or (segwit and include_witness):
         # preimage.extend(tran.data["marker"].to_bytes())
         # preimage.extend(tran.data["flag"].to_bytes())
@@ -208,6 +207,17 @@ def get_message(tran):
             preimage.extend(locktime)
             preimage.extend(hashtype)
 
+
+            # CHECK HASH
+
+            # print("pubkey: ", tran.pubkey.hex())
+            pubkeyhash = h160(s256(tran.pubkey[vin]))
+            valid_pubkeyhash = tran.in_scripts[vin][2:]
+            valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
+
+            if not valid:
+                print("NOT VALID")
+
             # print("version: ", binascii.hexlify(version))
             # print("hash(inputs): ", binascii.hexlify(doublesha256(txid_and_vouts)))
             # print("inputs: ", binascii.hexlify(txid_and_vouts))
@@ -288,6 +298,7 @@ def get_message(tran):
                 # print("  scriptpubkeysize: ", binascii.hexlify(tran.out_scriptpubkeys[i]))
             # END OUTPUT
 
+
             locktime = b'\x00\x00\x00\x00'
             hashtype = b'\x01\x00\x00\x00'
             witness = b'\x00'
@@ -295,6 +306,13 @@ def get_message(tran):
             # print("sighash: ", hashtype)
             preimage.extend(locktime)
             preimage.extend(hashtype)
+
+            pubkeyhash = h160(s256(tran.pubkey[vin]))
+            valid_pubkeyhash = tran.in_scripts[vin][3:3+20]
+
+            valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
+            if not valid:
+                print("NOT VALID")
 
         # print("message: ", binascii.hexlify(preimage))
         message = s256(preimage)
@@ -377,7 +395,7 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            if validcount > 500:
+            if validcount > 100:
                 # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:
