@@ -105,11 +105,23 @@ if __name__ == "__main__":
     trans = open("files.txt", "r").read().split("\n")[:-1]
     trans = list(map(bytes.fromhex, trans))
     # trans = list(map(reverseBytes, trans))
+    hashes1 = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
 
+    hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True))) for i in trans]
+    for i in range(len(hashes)):
+        print(reverseBytes(hashes[i]).hex())
+    hashes.insert(0, bytes(32))
+
+
+    witness_root_hash = merkle_tree(hashes)
+    print("witness root", witness_root_hash.hex())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
     coinbase_transaction_data["vout"][0]["value"] = reward
+    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
+    coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24" + witness_root_hash.hex()
+    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
 
     coinbase_transaction = Transaction(coinbase_transaction_data)
 

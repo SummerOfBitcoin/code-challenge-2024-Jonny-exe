@@ -93,7 +93,7 @@ class Transaction():
             valid = vk.verify(sig, message, sha256, sigdecode=sigdecode_der) # True
         return valid
 
-def get_raw_transaction(tran):     
+def get_raw_transaction(tran, include_witness=False):     
     version = tran.version
     preimage = bytearray([])
     preimage.extend(version)
@@ -110,11 +110,11 @@ def get_raw_transaction(tran):
     #     preimage.extend(tran.out_scriptpubkeys[0])
     # else
     segwit = False
-    if not tran.coinbase :
+    if not tran.coinbase and not include_witness:
         for i in range(tran.inputs_n):
             segwit |= tran.type[i] ==  "v0_p2wpkh"
-    segwit = False
-    if segwit:
+
+    if tran.coinbase or (segwit and include_witness):
         # preimage.extend(tran.data["marker"].to_bytes())
         # preimage.extend(tran.data["flag"].to_bytes())
         preimage.extend(b"\x00")
@@ -135,7 +135,7 @@ def get_raw_transaction(tran):
         preimage.extend(int_to_compact(len(tran.out_scriptpubkeys[i])))
         preimage.extend(tran.out_scriptpubkeys[i])
     
-    if segwit:
+    if tran.coinbase or (segwit and include_witness):
         for i in range(len(tran.data["vin"])):
             if "witness" in tran.data["vin"][i]:
                 preimage.extend(int_to_compact(len(tran.data["vin"][i]["witness"])))
@@ -147,14 +147,6 @@ def get_raw_transaction(tran):
     # print(binascii.hexlify(preimage))
     return preimage
 
-
-
-
-
-        
-
-
-        
 
 def get_message(tran):
     version = tran.version
