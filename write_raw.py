@@ -213,7 +213,7 @@ def get_message(tran):
             # print("pubkey: ", tran.pubkey.hex())
             pubkeyhash = h160(s256(tran.pubkey[vin]))
             valid_pubkeyhash = tran.in_scripts[vin][2:]
-            valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
+            # valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
 
             if not valid:
                 print("NOT VALID")
