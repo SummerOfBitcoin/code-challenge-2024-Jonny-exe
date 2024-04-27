@@ -274,9 +274,9 @@ def get_message(tran):
                         arr.extend(int_to_compact(len(tran.in_scripts[i])))
                         arr.extend(tran.in_scripts[i])
                 else:
-                    arr.extend(int(0).to_bytes(length=1))
+                    # arr.extend(int(0).to_bytes(length=1, byteorder="big"))
                     # print(bytes(0))
-                    # arr.extend(bytes(1))
+                    arr.extend(bytes(1))
 
                 preimage.extend(arr)
                 preimage.extend(tran.sequences[i])
