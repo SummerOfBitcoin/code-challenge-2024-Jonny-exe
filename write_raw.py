@@ -110,10 +110,11 @@ def get_raw_transaction(tran, include_witness=False):
     #     preimage.extend(tran.out_scriptpubkeys[0])
     # else
     segwit = False
-    if not tran.coinbase and not include_witness:
+    if not tran.coinbase and include_witness:
         for i in range(tran.inputs_n):
             segwit |= tran.type[i] ==  "v0_p2wpkh"
 
+    print(tran.coinbase or (segwit and include_witness), segwit, include_witness)
     if tran.coinbase or (segwit and include_witness):
         # preimage.extend(tran.data["marker"].to_bytes())
         # preimage.extend(tran.data["flag"].to_bytes())

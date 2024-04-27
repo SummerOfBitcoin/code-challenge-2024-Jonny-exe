@@ -109,25 +109,31 @@ if __name__ == "__main__":
     hashes1 = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
 
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True))) for i in trans]
+    types = [Transaction(open_file_as_json("mempool/"+i.hex()+".json")).type for i in trans]
     for i in range(len(hashes)):
         print(reverseBytes(hashes[i]).hex())
+        print(reverseBytes(hashes1[i]).hex())
     hashes.insert(0, bytes(32))
+    for i in types:
+        print("types: ", i)
 
 
     witness_root_hash = merkle_tree(hashes)
     witness_commitment = s256(s256(witness_root_hash + WITNESS_RESERVED_VALUE))
+    print("commit: ", witness_commitment.hex())
     print("witness root", witness_root_hash.hex())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
     coinbase_transaction_data["vout"][0]["value"] = reward
-    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
+    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]),coinbase_transaction_data["vout"][1]["scriptpubkey"] )
     coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24aa21a9ed" + witness_commitment.hex()
-    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
+    print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]), coinbase_transaction_data["vout"][1]["scriptpubkey"])
 
     coinbase_transaction = Transaction(coinbase_transaction_data)
 
     coinbase_transaction_bytes = get_raw_transaction(coinbase_transaction)
+    print("coin: ", coinbase_transaction_bytes.hex())
     print("coin: ", reverseBytes(s256(s256(coinbase_transaction_bytes))).hex())
     print("coin: ", s256(s256(coinbase_transaction_bytes)).hex())
     # trans.insert(0, reverseBytes(s256(s256(coinbase_transaction_bytes))))
