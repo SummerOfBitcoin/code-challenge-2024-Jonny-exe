@@ -1,5 +1,7 @@
 #mempool/fea944f8806101aa188e2feb4a0b0158b3531da3f15767e32400274bf3454f8c.json
 from ecdsa.util import sigdecode_der
+from ecdsa import VerifyingKey, BadSignatureError, MalformedPointError
+
 
 import binascii
 from hashlib import sha256
@@ -37,6 +39,7 @@ def hex_to_bytes(hex):
 
 class Transaction():
     def __init__(self, data):
+        self.error = False
         self.coinbase = data["vin"][0]["is_coinbase"]
         self.data = data
         self.version = data["version"].to_bytes(length=4, byteorder="little")
@@ -49,6 +52,7 @@ class Transaction():
         self.hashes = [reverseBytes(bytes.fromhex(i["txid"])) for i in data["vin"]]
         self.out_idx = [i["vout"].to_bytes(length=4, byteorder="little") for i in data["vin"]]
         self.scriptsigs = [i["scriptsig"] for i in data["vin"]]
+
 
         if not self.coinbase:
             self.type = [i["prevout"]["scriptpubkey_type"] for i in data["vin"]]
@@ -78,12 +82,23 @@ class Transaction():
             pubkey = bytes.fromhex(scriptsig[2+siglen*2+2:2+siglen*2+2+pubkeylen*2])
         # elif self.type[vin] == "p2sh":
         else:
-            sig = bytes.fromhex(self.data["vin"][vin]["witness"][0])
-            pubkey = bytes.fromhex(self.data["vin"][vin]["witness"][1])
+            try:
+                sig = bytes.fromhex(self.data["vin"][vin]["witness"][0])
+                pubkey = bytes.fromhex(self.data["vin"][vin]["witness"][1])
+            except IndexError:
+                self.error = True
+                sig = bytes(0)
+                pubkey = bytes(0)
         return sig, pubkey
     
     def verify_signature(pubkey, sig, message):
-        vk = ecdsa.VerifyingKey.from_string(pubkey, curve=ecdsa.SECP256k1)
+        try:
+            vk = ecdsa.VerifyingKey.from_string(pubkey, curve=ecdsa.SECP256k1)
+        except MalformedPointError:
+            print("pubkey: ", pubkey.hex())
+            return False
+
+
         try:
             valid = vk.verify(sig, message, sha256, sigdecode=sigdecode_der)
         except ecdsa.keys.BadSignatureError:
@@ -149,6 +164,8 @@ def get_raw_transaction(tran, include_witness=False):
 
 
 def get_message(tran):
+    if tran.error:
+        return False
     version = tran.version
     marker = b'\x00'
     flag = b'\x01'
@@ -213,7 +230,7 @@ def get_message(tran):
             # print("pubkey: ", tran.pubkey.hex())
             pubkeyhash = h160(s256(tran.pubkey[vin]))
             valid_pubkeyhash = tran.in_scripts[vin][2:]
-            # valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
+            valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
 
             if not valid:
                 print("NOT VALID")
@@ -382,9 +399,8 @@ def test():
                 data = open_file_as_json(filepath)
                 tran = Transaction(data)
                 valid = get_message(tran)
-            except:
+            except BadSignatureError:
                 valid = False
-            valdi = False
 
             if valid:
                 
