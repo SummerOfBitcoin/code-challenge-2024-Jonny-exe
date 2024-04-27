@@ -15,6 +15,7 @@ PREVIOUS_BLOCK = reverseBytes(bytes.fromhex("000000000000000000015b32060fb2b834a
 # BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="big")
 BLOCK_BITS = int("1f00ffff", 16).to_bytes(length=4, byteorder="little")
 VERSION = (32).to_bytes(length=4, byteorder="little")
+WITNESS_RESERVED_VALUE = bytes(32)
 
 def mine(target, merkletree):
     # asdfasd
@@ -114,13 +115,14 @@ if __name__ == "__main__":
 
 
     witness_root_hash = merkle_tree(hashes)
+    witness_commitment = s256(s256(witness_root_hash + WITNESS_RESERVED_VALUE))
     print("witness root", witness_root_hash.hex())
 
     coinbase_transaction_data = open_file_as_json("example.json")
     reward = calculate_block_reward(trans)
     coinbase_transaction_data["vout"][0]["value"] = reward
     print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
-    coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24aa21a9ed" + witness_root_hash.hex()
+    coinbase_transaction_data["vout"][1]["scriptpubkey"] = "6a24aa21a9ed" + witness_commitment.hex()
     print(len(coinbase_transaction_data["vout"][1]["scriptpubkey"]))
 
     coinbase_transaction = Transaction(coinbase_transaction_data)
