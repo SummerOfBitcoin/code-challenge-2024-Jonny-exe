@@ -394,12 +394,13 @@ def test():
             try:
                 data = open_file_as_json(filepath)
                 tran = Transaction(data)
-                segwit = False
-                for i in range(tran.inputs_n):
-                    segwit |= tran.type[i] ==  "v0_p2wpkh"
-                if not segwit:
-                    continue
-                if tran.inputs_n <= 1:
+                # segwit = False
+                # for i in range(tran.inputs_n):
+                #     segwit |= tran.type[i] ==  "v0_p2wpkh"
+                # if not segwit:
+                #     continue
+                # if tran.inputs_n <= 1:
+                if tran.inputs_n > 1:
                     continue
                 valid = get_message(tran)
             except BadSignatureError:
@@ -413,7 +414,7 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            if validcount > 10:
+            if validcount > 100:
                 # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:
