@@ -85,7 +85,7 @@ class Transaction():
             try:
                 sig = bytes.fromhex(self.data["vin"][vin]["witness"][0])
                 pubkey = bytes.fromhex(self.data["vin"][vin]["witness"][1])
-            except IndexError:
+            except (IndexError,KeyError):
                 self.error = True
                 sig = bytes(0)
                 pubkey = bytes(0)
