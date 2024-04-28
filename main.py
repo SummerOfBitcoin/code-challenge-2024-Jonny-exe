@@ -115,11 +115,16 @@ if __name__ == "__main__":
 
     for i in types:
         print("types: ", i)
+    idx = 0
     for i in hashes:
-        print(reverseBytes(i).hex())
+        print(idx, i.hex())
+        idx += 1
+    
+    idx = 0
     for i in raws:
-        print("raw: ", i.hex())
+        print(idx, "raw: ", i.hex())
         print("\n")
+        idx += 1
 
 
     witness_root_hash = merkle_tree(hashes)
@@ -142,9 +147,10 @@ if __name__ == "__main__":
 
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
     hashes.insert(0, s256(s256(coinbase_transaction_bytes)))
-
+    idx = 0
     for i in hashes:
-        print("hash: ", i.hex())
+        print(idx, "hash: ", i.hex())
+        idx += 1
 
 
     merkletree = merkle_tree(hashes)
