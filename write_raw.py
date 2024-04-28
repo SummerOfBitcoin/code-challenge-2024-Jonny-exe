@@ -95,7 +95,6 @@ class Transaction():
         try:
             vk = ecdsa.VerifyingKey.from_string(pubkey, curve=ecdsa.SECP256k1)
         except MalformedPointError:
-            print("pubkey: ", pubkey.hex())
             return False
 
 
@@ -232,9 +231,6 @@ def get_message(tran):
             valid_pubkeyhash = tran.in_scripts[vin][2:]
             valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
 
-            if not valid:
-                print("NOT VALID")
-
             # print("version: ", binascii.hexlify(version))
             # print("hash(inputs): ", binascii.hexlify(doublesha256(txid_and_vouts)))
             # print("inputs: ", binascii.hexlify(txid_and_vouts))
@@ -330,8 +326,6 @@ def get_message(tran):
             valid_pubkeyhash = tran.in_scripts[vin][3:3+20]
 
             valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
-            if not valid:
-                print("NOT VALID")
 
         # print("message: ", binascii.hexlify(preimage))
         message = s256(preimage)
@@ -405,7 +399,6 @@ def test():
                 valid = False
 
             if valid:
-                
                 res.append(file[:-5])      
                 validcount += 1
                 # print(str(validcount) + "\n", flush=True)
@@ -413,7 +406,7 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            if validcount > 100:
+            if validcount > 2:
                 # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:

@@ -106,15 +106,14 @@ if __name__ == "__main__":
     trans = open("files.txt", "r").read().split("\n")[:-1]
     trans = list(map(bytes.fromhex, trans))
     # trans = list(map(reverseBytes, trans))
-    hashes1 = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
-
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True))) for i in trans]
     types = [Transaction(open_file_as_json("mempool/"+i.hex()+".json")).type for i in trans]
     hashes.insert(0, bytes(32))
     print("TYPES: ", len(types))
     print("HASHES: ", len(hashes))
-    for i in types[0:30]:
-        print("types: ", i)
+
+    for i in hashes:
+        print(reverseBytes(i).hex())
 
 
     witness_root_hash = merkle_tree(hashes)
@@ -137,6 +136,9 @@ if __name__ == "__main__":
 
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json"))))) for i in trans]
     hashes.insert(0, s256(s256(coinbase_transaction_bytes)))
+
+    for i in hashes:
+        print("hash: ", i.hex())
 
 
     merkletree = merkle_tree(hashes)
