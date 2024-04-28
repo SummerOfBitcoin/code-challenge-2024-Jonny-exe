@@ -108,6 +108,7 @@ if __name__ == "__main__":
     # trans = list(map(reverseBytes, trans))
     hashes = [s256(s256(get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True))) for i in trans]
     types = [Transaction(open_file_as_json("mempool/"+i.hex()+".json")).type for i in trans]
+    raws = [get_raw_transaction(Transaction(open_file_as_json("mempool/"+i.hex()+".json")), include_witness=True) for i in trans]
     hashes.insert(0, bytes(32))
     print("TYPES: ", len(types))
     print("HASHES: ", len(hashes))
@@ -116,6 +117,9 @@ if __name__ == "__main__":
         print("types: ", i)
     for i in hashes:
         print(reverseBytes(i).hex())
+    for i in raws:
+        print("raw: ", i.hex())
+        print("\n")
 
 
     witness_root_hash = merkle_tree(hashes)

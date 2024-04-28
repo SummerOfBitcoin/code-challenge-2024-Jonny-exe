@@ -399,7 +399,7 @@ def test():
                     segwit |= tran.type[i] ==  "v0_p2wpkh"
                 if not segwit:
                     continue
-                if tran.inputs_n > 1:
+                if tran.inputs_n <= 1:
                     continue
                 valid = get_message(tran)
             except BadSignatureError:
@@ -413,9 +413,9 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            # if validcount > 50:
+            if validcount > 2:
                 # print(filepath)
-                # break
+                break
             if (validcount + invalidcount) % 100 == 0:
                 # print((validcount + invalidcount))
                 pass
