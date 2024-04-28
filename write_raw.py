@@ -394,6 +394,11 @@ def test():
             try:
                 data = open_file_as_json(filepath)
                 tran = Transaction(data)
+                segwit = False
+                for i in range(tran.inputs_n):
+                    segwit |= tran.type[i] ==  "v0_p2wpkh"
+                if not segwit:
+                    continue
                 valid = get_message(tran)
             except BadSignatureError:
                 valid = False

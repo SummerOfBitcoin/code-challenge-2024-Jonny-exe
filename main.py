@@ -112,6 +112,8 @@ if __name__ == "__main__":
     print("TYPES: ", len(types))
     print("HASHES: ", len(hashes))
 
+    for i in types:
+        print("types: ", i)
     for i in hashes:
         print(reverseBytes(i).hex())
 
