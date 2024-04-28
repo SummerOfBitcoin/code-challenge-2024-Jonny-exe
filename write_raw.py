@@ -414,7 +414,7 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            if validcount > 100:
+            if validcount > 10000:
                 # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:
