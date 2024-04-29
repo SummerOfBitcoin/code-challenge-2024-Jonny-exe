@@ -407,7 +407,7 @@ def test():
 
                 if not same:
                     continue
-                if tran.inputs_n > 2:
+                if tran.inputs_n > 3:
                     continue
                 valid = get_message(tran)
             except BadSignatureError:
@@ -421,7 +421,7 @@ def test():
                 invalidcount += 1
             # if validcount + invalidcount > 100:
             #     break
-            if validcount > 1000:
+            if validcount > 10000:
                 # print(filepath)
                 break
             if (validcount + invalidcount) % 100 == 0:
