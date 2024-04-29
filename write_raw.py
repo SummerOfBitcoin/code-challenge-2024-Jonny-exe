@@ -399,7 +399,13 @@ def test():
                 #     segwit |= tran.type[i] ==  "v0_p2wpkh"
                 # if not segwit:
                 #     continue
-                if tran.inputs_n != 2:
+                same = True
+                past = ""
+                for i in tran.type:
+                    same &= i == past or past == ""
+                    past = i
+
+                if tran.inputs_n != 2 or not same:
                 # if tran.inputs_n == 1:
                     continue
                 valid = get_message(tran)
