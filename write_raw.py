@@ -156,6 +156,8 @@ def get_raw_transaction(tran, include_witness=False):
                 for j in range(len(tran.data["vin"][i]["witness"])):
                     preimage.extend(int_to_compact(len(bytes.fromhex(tran.data["vin"][i]["witness"][j]))))
                     preimage.extend(bytes.fromhex(tran.data["vin"][i]["witness"][j]))
+            else:
+                preimage.extend(bytes(1))
 
     preimage.extend(tran.locktime)
     # print(binascii.hexlify(preimage))
@@ -405,8 +407,8 @@ def test():
                     same &= i == past or past == ""
                     past = i
 
-                if not same:
-                    continue
+                # if not same:
+                #     continue
                 if tran.inputs_n > 4:
                     continue
                 valid = get_message(tran)
