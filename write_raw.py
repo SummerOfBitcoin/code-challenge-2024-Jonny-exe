@@ -405,7 +405,7 @@ def test():
                     same &= i == past or past == ""
                     past = i
 
-                if tran.inputs_n != 2 or not same:
+                if not same:
                 # if tran.inputs_n == 1:
                     continue
                 valid = get_message(tran)
