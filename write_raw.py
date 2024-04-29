@@ -407,7 +407,7 @@ def test():
 
                 if not same:
                     continue
-                if tran.inputs_n <= 1:
+                if tran.inputs_n > 2:
                     continue
                 valid = get_message(tran)
             except BadSignatureError:
