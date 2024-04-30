@@ -1,4 +1,3 @@
-#mempool/fea944f8806101aa188e2feb4a0b0158b3531da3f15767e32400274bf3454f8c.json
 from ecdsa.util import sigdecode_der
 from ecdsa import VerifyingKey, BadSignatureError, MalformedPointError
 
@@ -14,28 +13,12 @@ import os
 from helpers import s256, h160, reverseBytes, open_file_as_json, int_to_compact
 
 
-# def s256(b):
-#     return sha256(b).digest()
-
-# def h160(b):
-#     scripthash = hashlib.new('ripemd160')
-#     scripthash.update(b)
-#     return scripthash.digest()
-
-
-
 def doublesha256(input):
     return sha256(sha256(input).digest()).digest()
 
 def hex_to_bytes(hex):
-    # return bytearray([int(hex[i:i+2], 16) for i in range(len(hex))])
     return bytes.fromhex(hex)
 
-# def reverseBytes(b):
-#     a = bytearray()
-#     for i in range(len(b)):
-#         a.extend(b[len(b)-i-1].to_bytes())
-#     return a
 
 class Transaction():
     def __init__(self, data):
@@ -72,7 +55,6 @@ class Transaction():
  
 
     def get_sig_and_pubkey(self, vin):
-        # "4730440220200b9a61529151f9f264a04e9aa17bb6e1d53fb345747c44885b1e185a82c17502200e41059f8ab4d3b3709dcb91b050c344b06c5086f05598d62bc06a8b746db4290121025f0ba0cdc8aa97ec1fffd01fac34d3a7f700baf07658048263a2c925825e8d33",
         if self.type[vin] == "p2pkh":
             scriptsig = self.scriptsigs[vin]
             siglen = int(scriptsig[:2], 16)
@@ -108,6 +90,9 @@ class Transaction():
         return valid
 
 def get_raw_transaction(tran, include_witness=False):     
+    """
+    Given a transaction return the raw data
+    """
     version = tran.version
     preimage = bytearray([])
     preimage.extend(version)
@@ -164,15 +149,15 @@ def get_raw_transaction(tran, include_witness=False):
     return preimage
 
 
-def get_message(tran):
+def is_tran_valid(tran):
+    """
+    Given a transaction check if it's valid
+    """
     if tran.error:
         return False
     version = tran.version
     marker = b'\x00'
     flag = b'\x01'
-
-    # inputs_n = len(data["vin"])
-    # tran.inputs = bytearray([inputs_n])
 
     valid = True
 
@@ -202,7 +187,6 @@ def get_message(tran):
             for i in range(tran.inputs_n):
                 txid_and_vouts.extend(tran.hashes[i])
                 txid_and_vouts.extend(tran.out_idx[i])
-                # sequences.extend(doublesha256(tran.sequences[i]))
                 sequences.extend(tran.sequences[i])
             sequences = doublesha256(sequences)
 
@@ -249,12 +233,8 @@ def get_message(tran):
         else:
             # p2pkh, p2sh
             preimage.extend(tran.inputs)
-            # print("version: ", binascii.hexlify(version))
             if tran.type[vin] == "p2wpkh" or tran.type[vin] == "p2wsh":
-                # print("marker: ", binascii.hexlify(marker))
-                # print("flat: ", binascii.hexlify(flag))
                 pass
-            # print("inputs: ", binascii.hexlify(tran.inputs))
 
             for i in range(tran.inputs_n):
                 # HASH OUT_TX SCRIPT_SIZE SCRIPT SEQUENCE
@@ -264,43 +244,29 @@ def get_message(tran):
                 arr = bytearray([])
                 if i == vin:
                     if tran.type[vin] == "p2sh":
-                        # print("P2SH")
-                        # print(binascii.hexlify(tran.pubkey[vin]), len(tran.pubkey[vin]))
                         arr.extend(int_to_compact(len(tran.pubkey[vin])))
                         arr.extend(tran.pubkey[vin])
                     else:
                         arr.extend(int_to_compact(len(tran.in_scripts[i])))
                         arr.extend(tran.in_scripts[i])
                 else:
-                    # arr.extend(int(0).to_bytes(length=1, byteorder="big"))
-                    # print(bytes(0))
                     arr.extend(bytes(1))
 
                 preimage.extend(arr)
                 preimage.extend(tran.sequences[i])
-                # print("  txid: ", binascii.hexlify(tran.hashes[i]))
-                # print("  vout: ", binascii.hexlify(tran.out_idx[i]))
                 if i == vin:
                     if tran.type[vin] == "p2sh":
-                        # print("  scriptsigsize: ", binascii.hexlify(len(tran.pubkey[vin]).to_bytes()))
-                        # print("  scriptsig: ", binascii.hexlify(tran.pubkey[vin]))
                         pass
                     else:
-                        # print("  scriptsigsize: ", binascii.hexlify(len(tran.in_scripts[i]).to_bytes()))
-                        # print("  scriptsig: ", binascii.hexlify(tran.in_scripts[i]))
                         pass
                 else:
-                    # print("  scriptsigsize: ", binascii.hexlify(len("").to_bytes()))
                     pass
 
-                # print("  sequence: ", binascii.hexlify(tran.sequences[i]))
             # END INPUT
 
 
             preimage.extend(tran.outputs)
 
-            # print("tran.outputs: ", tran.outputs)
-            # START OUTPUTS
             for i in range(tran.outputs_n):
                 # VALUE SCRIPT SIZE SCRIPT
                 preimage.extend(tran.values[i])
@@ -310,17 +276,12 @@ def get_message(tran):
 
                 preimage.extend(int_to_compact(len(arr)))
                 preimage.extend(arr)
-                # print("  amount: ", binascii.hexlify(tran.values[i]))
-                # print("  scriptpubkeysize: ", binascii.hexlify(len(arr).to_bytes()))
-                # print("  scriptpubkeysize: ", binascii.hexlify(tran.out_scriptpubkeys[i]))
             # END OUTPUT
 
 
             locktime = b'\x00\x00\x00\x00'
             hashtype = b'\x01\x00\x00\x00'
             witness = b'\x00'
-            # print("locktime: ", locktime)
-            # print("sighash: ", hashtype)
             preimage.extend(locktime)
             preimage.extend(hashtype)
 
@@ -329,60 +290,26 @@ def get_message(tran):
 
             valid &= valid_pubkeyhash.hex() == pubkeyhash.hex()
 
-        # print("message: ", binascii.hexlify(preimage))
         message = s256(preimage)
-        # print("message: ", binascii.hexlify(message))
-
-        # if tran.type[vin] == "p2sh":
-        #     if "witness" in tran.data["vin"][vin]:
-        #         redeamscript = bytes.fromhex(tran.data["vin"][vin]["witness"][-1])
-        #         a = h160(s256(redeamscript))
-        #         scripthash = h160(s256(b'\x00\x14' + a))
-        #         validscripthash = tran.in_scripts[vin][2:-1]
-        #         # print("scripthash: ", binascii.hexlify(scripthash))
-        #         # print("validscripthash: ", binascii.hexlify(validscripthash))
-        #         if scripthash == validscripthash:
-        #             pass
-        #         else:
-        #             valid = False
-        #             continue
-
-        # print("message: ", binascii.hexlify(message))
-
-        # print("sig: ", binascii.hexlify(tran.sig[vin]))
-        # print("pubkey: ", binascii.hexlify(tran.pubkey[vin]))
-        # a = s256(tran.pubkey[vin])
-        # pubkeyh = h160(a)
-        # print("pubkeyhash: ", binascii.hexlify(pubkeyh))
-        # print("==================  ===================")
 
         valid &= Transaction.verify_signature(tran.pubkey[vin], tran.sig[vin], message) 
         if not valid:
             return False
-        # print(valid)
 
 
-    # print("Valid all: ", valid)
     return valid
-# print(binascii.hexlify(reverseBytes(bytes.fromhex("0d3edad1d8df2140536f0add480c7125b8d0df8f0327724e25a58fbe7a1e5b0dc344f34e11ab4fe6ec009769ba516da6bfc2f086b5"))))
-# FILENAME = "mempool/0bca464849c31d4e2cbf4587a3a3163d94f1c3c513f90d8fc9710938214c0488.json"
-# FILENAME = "/home/a/Documents/GitHub/code-challenge-2024-Jonny-exe/mempool/00d7c8ddc2e75f6ba97520623390f01a910dc66a9e6a2052ee31f1b99aabdea5.json"
-# FILENAME = "mempool/0a5d6ddc87a9246297c1038d873eec419f04301197d67b9854fa2679dbe3bd65.json"
-# FILENAME = "mempool/ff0b097b6baf9a4db7b5bfa8503a39613d1b5b5b1c58f5369a0249d9ff01de16.json"
-# FILENAME = "mempool/0a3fd98f8b3d89d2080489d75029ebaed0c8c631d061c2e9e90957a40e99eb4c.json" # TWO OUTPUTS P2WPKH
-# FILENAME = "mempool/0a4ce1145b6485c086f277aa185ba799234204f6caddb4228ee42b7cc7ad279a.json" # TWO OUTPUTS P2WPKH
+
 FILENAME = "mempool/0aac26114009989817ba396fbfcdb0ab2f2a51a30df5d134d3294aacb27e8f69.json"
-# FILENAME = "mempool/0c012ec325aa8af28ce01aef6b39d9e024f5aa6a026fd74fce6045f207758f8c.json"
-# FILENAME = "/home/a/Documents/GitHub/code-challenge-2024-Jonny-exe/mempool/0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240.json"
-# FILENAME = "test2.json"
 FILENAME = "mempool/0c012ec325aa8af28ce01aef6b39d9e024f5aa6a026fd74fce6045f207758f8c.json"
 data = open_file_as_json(FILENAME)
 tran = Transaction(data)
-# print(get_message(data, tran))
 
 
 
 def test():
+    """
+    Test the program, take all the transactions and check which ones are valid
+    """
     rootdir = "mempool"
     idx = 0
     validcount = 0
@@ -411,7 +338,7 @@ def test():
                 #     continue
                 if tran.inputs_n > 10:
                     continue
-                valid = get_message(tran)
+                valid = is_tran_valid(tran)
             except BadSignatureError:
                 valid = False
 
@@ -436,5 +363,3 @@ def test():
     f.close()
     return res
 
-
-# test()
